@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>山田内科クリニック - AIチャットサポート</title>
+    <meta name="description" content="山田内科クリニックのAIチャットサポート。診療時間・予約方法・アクセスなど、お気軽にご質問ください。">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header">
+    <div class="header-inner">
+        <div class="logo">
+            <span class="logo-icon">🏥</span>
+            <div>
+                <h1>山田内科クリニック</h1>
+                <p class="logo-sub">AIチャットサポート</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main">
+    <div class="chat-container">
+        <div class="chat-header">
+            <p>ご質問をどうぞ。診療時間・予約方法・アクセスなど、お答えします。</p>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                <div class="message-icon">🏥</div>
+                <div class="message-body">
+                    <p>こんにちは、山田内科クリニックです。<br>診療時間やご予約方法など、お気軽にご質問ください。</p>
+                </div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <div class="quick-buttons">
+                <button class="quick-btn" data-message="診療時間を教えてください">診療時間</button>
+                <button class="quick-btn" data-message="予約はどうすればいいですか？">予約方法</button>
+                <button class="quick-btn" data-message="場所はどこですか？">アクセス</button>
+                <button class="quick-btn" data-message="どんな症状を診てもらえますか？">診療内容</button>
+            </div>
+            <form class="chat-form" id="chatForm">
+                <input type="text" id="chatInput" placeholder="ここにメッセージを入力..." autocomplete="off">
+                <button type="submit" id="sendBtn">送信</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    <p>※ これはポートフォリオ用のデモです。架空のクリニックです。</p>
+    <p>AIの回答は参考情報です。正確な情報はお電話でご確認ください。</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
