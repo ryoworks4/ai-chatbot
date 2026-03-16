@@ -9,8 +9,18 @@ export default async function handler(req, res) {
     }
 
     const { history } = req.body;
-    if (!history || !Array.isArray(history)) {
+    if (!history || !Array.isArray(history) || history.length === 0 || history.length > 20) {
         return res.status(400).json({ error: 'Invalid request' });
+    }
+
+    const isValidMessage = (msg) =>
+        msg && typeof msg.role === 'string' &&
+        ['user', 'model'].includes(msg.role) &&
+        Array.isArray(msg.parts) &&
+        msg.parts.every(p => typeof p.text === 'string' && p.text.length <= 5000);
+
+    if (!history.every(isValidMessage)) {
+        return res.status(400).json({ error: 'Invalid message format' });
     }
 
     const systemPrompt = `あなたは「山田内科クリニック」の受付スタッフです。
@@ -58,10 +68,13 @@ export default async function handler(req, res) {
 
     try {
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
             {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-goog-api-key': apiKey
+                },
                 body: JSON.stringify({
                     systemInstruction: {
                         parts: [{ text: systemPrompt }]
@@ -76,8 +89,8 @@ export default async function handler(req, res) {
         );
 
         if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Gemini API error:', errorData);
+            const errorText = await response.text();
+            console.error('Gemini API error:', response.status, errorText);
             return res.status(502).json({ error: 'AI service error' });
         }
 
