@@ -45,9 +45,62 @@ function filterOutput(response) {
     return response;
 }
 
+// --- レート制限（IPベース、メモリ管理付き） ---
+const rateLimitMap = new Map();
+const RATE_LIMIT = 30;           // 1分あたりの上限リクエスト数
+const RATE_WINDOW_MS = 60 * 1000; // 1分
+
+function rateLimit(ip) {
+    const now = Date.now();
+    const record = rateLimitMap.get(ip);
+
+    if (!record || now > record.resetAt) {
+        rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+        return true;
+    }
+
+    record.count++;
+    return record.count <= RATE_LIMIT;
+}
+
+// 古いエントリを5分ごとに掃除（メモリリーク防止）
+setInterval(() => {
+    const now = Date.now();
+    for (const [ip, record] of rateLimitMap) {
+        if (now > record.resetAt) rateLimitMap.delete(ip);
+    }
+}, 5 * 60 * 1000);
+
 export default async function handler(req, res) {
+    // --- CORS: 同一オリジンのみ許可 ---
+    const origin = req.headers.origin;
+    const host = req.headers.host;
+
+    // origin がある場合（ブラウザからのクロスオリジンリクエスト）、
+    // 自分自身のドメインからのリクエストのみ許可
+    if (origin) {
+        const allowedOrigin = `https://${host}`;
+        if (origin !== allowedOrigin) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Methods', 'POST');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    }
+
+    // プリフライトリクエスト対応
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    // --- レート制限チェック ---
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+    if (!rateLimit(ip)) {
+        return res.status(429).json({ error: 'Too many requests. Please wait a moment.' });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
