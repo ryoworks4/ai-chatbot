@@ -61,7 +61,7 @@ function addMessage(text, type) {
 
     const body = document.createElement('div');
     body.className = 'message-body';
-    body.innerHTML = `<p>${text.replace(/\n/g, '<br>')}</p>`;
+    body.innerHTML = `<p>${escapeHtml(text).replace(/\n/g, '<br>')}</p>`;
 
     div.appendChild(icon);
     div.appendChild(body);
@@ -152,3 +152,10 @@ document.querySelectorAll('.quick-btn').forEach(btn => {
         chatForm.dispatchEvent(new Event('submit'));
     });
 });
+
+// HTMLエスケープ（XSS対策）
+function escapeHtml(s) {
+    const div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+}
