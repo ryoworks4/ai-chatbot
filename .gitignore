@@ -13,3 +13,27 @@ Thumbs.db
 
 # ログ
 *.log
+
+# === Added by harden-gitignore 20260517-094724 ===
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+**/credentials.json
+secrets/
+service-account*.json
+npm-debug.log*
+.npm/
+.next/
+.nuxt/
+dist/
+build/
+out/
+desktop.ini
+.vscode/
+.idea/
+.cache/
+.parcel-cache/
+.turbo/
+.vercel
